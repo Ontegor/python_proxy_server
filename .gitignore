@@ -1,3 +1,5 @@
+.venv
 venv
+.azure
 .idea/*
 __pycache__

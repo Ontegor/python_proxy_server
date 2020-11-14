@@ -6,7 +6,7 @@ host_scheme = "https"
 
 encrypted_connection = 0
 
-proxy_host_name = 'championtest.azurewebsites.net'
+proxy_host_name = '127.0.0.1:5000'
 
 subdomain = ''
 
@@ -31,24 +31,26 @@ from flask import Response
 import urllib.parse
 import re
 import urlfetch
+import urllib3
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
+app.secret_key = 'development key'
 
 @app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@app.route('/<path:path>', methods=['GET', 'POST'])
 def catch_all(path):
     response = Response('')
 
-    if encrypted_connection and 'https' != request.scheme:
-      resp.headers['Strict-Transport-Security'] =  'max-age=31536000'
-      redirect ('https://' + request.host + request.path, code = 307)
-      return
-
-    elif not encrypted_connection and 'http' != request.scheme:
-      resp.headers['Strict-Transport-Security'] =  'max-age=0'
-      redirect('http://' + request.host + request.path, code = 307)
-      return
+#     if encrypted_connection and 'https' != request.scheme:
+#       resp.headers['Strict-Transport-Security'] =  'max-age=31536000'
+#       redirect ('https://' + request.host + request.path, code = 307)
+#       return
+#
+#     elif not encrypted_connection and 'http' != request.scheme:
+#       resp.headers['Strict-Transport-Security'] =  'max-age=0'
+#       redirect('http://' + request.host + request.path, code = 307)
+#       return
 
 
     subdomain = ''
@@ -81,31 +83,35 @@ def catch_all(path):
             headers[name] = value.replace(proxy_host_name, host_name)
     headers['Accept-Encoding'] = 'deflate'
     # send req to host
+    http = urllib3.PoolManager()
     try:
-       result = urlfetch.fetch(
-            url              = url,
-            payload          = request.data,
-            method           = request.method,
+       result = http.request(
+            request.method,
+            url,
+            fields          = request.data,
             headers          = headers,
-            allow_truncated  = False,
-            follow_redirects = False,
-            deadline         = 30
+            retries = 10
           )
     except Exception as e:
           response.tatus_int = 504
           response.data = str(e)
           return response
 
-    if result.status_code < 512:
-          response.status_int = result.status_code
+
+    if result.status < 512:
+          response.status_int = result.status
     else: # fix cloudflare codes
          response.status_int = 503
 
-    content = result.content
+    content = result.data
     response.headers = {}
     content_type  = '??'
 
+
     for name, value in result.headers.items():
+          if name == 'location':
+            print(value)
+
           name_l = name.lower()
           value = value.strip()
           if name_l in skip_headers:

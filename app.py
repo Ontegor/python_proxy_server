@@ -6,7 +6,7 @@ host_scheme = "https"
 
 encrypted_connection = 0
 
-proxy_host_name = '127.0.0.1:5000'
+proxy_host_name = 'championtest.azurewebsites.net'
 
 subdomain = ''
 
@@ -33,9 +33,7 @@ import re
 import urlfetch
 
 app = Flask(__name__)
-app.debug = True
-app.secret_key = 'development key'
-# toolbar = DebugToolbarExtension(app)
+app.debug = False
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -44,7 +42,8 @@ def catch_all(path):
 
     if encrypted_connection and 'https' != request.scheme:
       resp.headers['Strict-Transport-Security'] =  'max-age=31536000'
-      #return redirect ('https://' + str(request.host) + str(request.query_string), code = 307)
+      redirect ('https://' + request.host + request.path, code = 307)
+      return
 
     elif not encrypted_connection and 'http' != request.scheme:
       resp.headers['Strict-Transport-Security'] =  'max-age=0'

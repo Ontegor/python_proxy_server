@@ -30,12 +30,11 @@ from flask import request
 from flask import Response
 import urllib.parse
 import re
-import urlfetch
 import urllib3
 
 app = Flask(__name__)
-app.debug = True
-app.secret_key = 'development key'
+# app.debug = True
+# app.secret_key = 'development key'
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>', methods=['GET', 'POST'])
@@ -82,6 +81,7 @@ def catch_all(path):
         if not name.startswith('X-'):
             headers[name] = value.replace(proxy_host_name, host_name)
     headers['Accept-Encoding'] = 'deflate'
+
     # send req to host
     http = urllib3.PoolManager()
     try:
@@ -90,10 +90,10 @@ def catch_all(path):
             url,
             fields          = request.data,
             headers          = headers,
-            retries = 10
+            retries = False
           )
     except Exception as e:
-          response.tatus_int = 504
+          response.status_int = 504
           response.data = str(e)
           return response
 
@@ -107,11 +107,7 @@ def catch_all(path):
     response.headers = {}
     content_type  = '??'
 
-
-    for name, value in result.headers.items():
-          if name == 'location':
-            print(value)
-
+    for name, valuse in result.headers.items():
           name_l = name.lower()
           value = value.strip()
           if name_l in skip_headers:
@@ -121,6 +117,9 @@ def catch_all(path):
           else:
             value = value.replace(host_name, proxy_host_name)
           response.headers[name] = value
+
+    if  result.status in [301, 302, 303, 307] and result.headers.get('Location') != None:
+        return redirect (response.headers.get('Location'), code = result.status)
 
     if content_type[0] in ['text', 'application']:
           if content_type[1] in ['html', 'xhtml+xml']:

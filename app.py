@@ -29,12 +29,8 @@ from flask import Flask, redirect
 from flask import request
 from flask import Response
 import urllib.parse
-import requests
 import re
 import urlfetch
-from flask_debugtoolbar import DebugToolbarExtension
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 app.debug = True

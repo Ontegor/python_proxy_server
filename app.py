@@ -107,7 +107,7 @@ def catch_all(path):
     response.headers = {}
     content_type  = '??'
 
-    for name, valuse in result.headers.items():
+    for name, value in result.headers.items():
           name_l = name.lower()
           value = value.strip()
           if name_l in skip_headers:

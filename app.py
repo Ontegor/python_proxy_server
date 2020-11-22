@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
-host_name = "casinoobooi.com"
+host_name = ""
 
 host_scheme = "https"
 
-encrypted_connection = 0
+encrypted_connection = 1
 
-proxy_host_name = '127.0.0.1:5000'
+proxy_host_name = ''
 
 subdomain = ''
 
@@ -81,6 +81,7 @@ def catch_all(path):
         if not name.startswith('X-'):
             headers[name] = value.replace(proxy_host_name, host_name)
     headers['Accept-Encoding'] = 'deflate'
+    headers['Proxy-Agent'] = 'zazure'
 
     # send req to host
     http = urllib3.PoolManager()

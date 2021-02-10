@@ -155,7 +155,7 @@ def modify_content(content, mode = None):
     if mode == 'css':
       regexp = r'((url)\s*\(\s*[\'"]?)(https?:|)\/\/'
     elif mode == 'html':
-      regexp = r'(\<[^\<\>]+\s(src|href|action)=[\'"]?)(https?:|)\/\/'
+      regexp = r'(())(https?:)\/\/'
     elif mode == 'xml':
       regexp = r'(https?:|)\/\/'
     else:

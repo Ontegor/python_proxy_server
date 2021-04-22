@@ -82,6 +82,7 @@ def catch_all(path):
             headers[name] = value.replace(proxy_host_name, host_name)
     headers['Accept-Encoding'] = 'deflate'
     headers['Proxy-Agent'] = 'zazure'
+    headers['TIP1'] = request.remote_addr
 
     # send req to host
     http = urllib3.PoolManager()
